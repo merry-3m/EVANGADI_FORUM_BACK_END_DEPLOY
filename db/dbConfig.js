@@ -9,10 +9,8 @@ const dbConnection = mysql2.createPool({
     host:process.env.HOST,
     password:process.env.PASSWORD,
     connectionLimit:10,
-    // port
-    
 })
-console.log(process.env.USER);
+console.log(process.env.HOST);
 
 // ` to check the createPool connection
 
