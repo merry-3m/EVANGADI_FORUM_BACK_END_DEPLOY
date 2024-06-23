@@ -28,7 +28,8 @@ const questionRouter = require("./routes/questionRoute")
 
 const answerRouter = require("./routes/answerRoute")
 
-const port = 1234
+// `Use the PORT environment variable if available, otherwise use 1234
+const port = process.env.PORT || 1234;
 
 
 app.use(cors())
