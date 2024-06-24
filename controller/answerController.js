@@ -144,36 +144,41 @@ async function editAnswer(req, res) {
 async function deleteAnswer(req, res) {
     const { answerId } = req.params;
     const { userid } = req.user;
-
+  
     try {
-        // Check if the answer exists and belongs to the authenticated user
-        const [existingAnswer] = await dbConnection.query(
-            "SELECT * FROM answers WHERE answerid = ? AND userid = ?",
-            [answerId, userid]
-        );
-
-        if (!existingAnswer.length) {
-            return res.status(StatusCodes.NOT_FOUND).json({ message: "Answer not found or user not authorized to delete" });
-        }
-
-        // Delete the answer
-        const deleteResult = await dbConnection.query(
-            "DELETE FROM answers WHERE answerid = ?",
-            [answerId]
-        );
-
-        res.status(StatusCodes.OK).json({
-            message: "Answer deleted successfully",
-            deletedAnswerId: answerId
-        });
+      // Check if the answer exists and belongs to the authenticated user
+      const [existingAnswer] = await dbConnection.query(
+        "SELECT * FROM answers WHERE answerid = ? AND userid = ?",
+        [answerId, userid]
+      );
+  
+      if (!existingAnswer || existingAnswer.length === 0) {
+        return res.status(StatusCodes.NOT_FOUND).json({ message: "Answer not found or user not authorized to delete" });
+      }
+  
+      // Delete the answer
+      const [deleteResult] = await dbConnection.query(
+        "DELETE FROM answers WHERE answerid = ?",
+        [answerId]
+      );
+  
+      // Check if any row was affected (i.e., deleted)
+      if (deleteResult.affectedRows === 0) {
+        return res.status(StatusCodes.NOT_FOUND).json({ message: "Answer not found" });
+      }
+  
+      res.status(StatusCodes.OK).json({
+        message: "Answer deleted successfully",
+        deletedAnswerId: answerId
+      });
     } catch (error) {
-        console.error("Error deleting answer:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message: "Something went wrong",
-            error: error.message
-        });
+      console.error("Error deleting answer:", error);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Something went wrong",
+        error: error.message
+      });
     }
-}
+  }
 
 module.exports = { postAnswer, getAnswer, editAnswer, deleteAnswer};
 
